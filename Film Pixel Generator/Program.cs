@@ -13,7 +13,7 @@ namespace FilmPixelGenerator
         public static string extension = "png", unsortedFolder = "raw3", sortedFolder = "unraw3";
         static void Main()
         {
-            List<ImageReference> unsortedImages = GetImages(unsortedFolder);
+            List<ImageReference> unsortedImages = GetImages(unsortedFolder);//test
             List<ImageReference> sortedImages = SortImagesByBrightness(unsortedImages);
 
             SaveImages(sortedImages, sortedFolder, "sorted_image");
