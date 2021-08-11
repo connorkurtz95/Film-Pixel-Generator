@@ -25,11 +25,6 @@ namespace FilmPixelGenerator
                 unprocessedFolder4 = "Clip4Unprocessed", processedFolder4 = "Clip4Processed", unprocessedFolder5 = "Clip5Unprocessed", processedFolder5 = "Clip5Processed", unprocessedFolder6 = "Clip6Unprocessed", processedFolder6 = "Clip6Processed",
                 unprocessedFolder7 = "Clip7Unprocessed", processedFolder7 = "Clip7Processed", unprocessedFolder8 = "Clip8Unprocessed", processedFolder8 = "Clip8Processed", unprocessedFolder9 = "Clip9Unprocessed", processedFolder9 = "Clip9Processed";
 
-
-            //ProcessNames.Horizontal;
-
-
-
             LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder1, processedFolder1, shiftValue: 1);
             LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder2, processedFolder2, shiftValue: 2);
             LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder3, processedFolder3, shiftValue: 4);
@@ -63,7 +58,7 @@ namespace FilmPixelGenerator
                     image = VerticalLineProcess(image, shiftChance, shiftValue);
                 }
 
-                SaveImage(image, processedFolder, processedFolder + count, extension);
+                SaveImage(image, processedFolder, extension, count, unprocessedImages.Count);
             }
         }
 
@@ -167,11 +162,11 @@ namespace FilmPixelGenerator
             }
         }
 
-        static void SaveImage(Image<Rgba32> image, string folder, string fileName, string extension)
+        static void SaveImage(Image<Rgba32> image, string folder, string extension, int count, int total)
         {
-            string location = folder + "\\" + fileName + "." + extension;
+            string location = folder + "\\" + folder + count + "." + extension;
 
-            Console.WriteLine("Saving " + location);
+            Console.WriteLine("Saving " + location + " - " + count + " / " + total);
 
             Directory.CreateDirectory(folder);
             image.Save(location);
