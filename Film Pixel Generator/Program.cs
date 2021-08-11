@@ -32,12 +32,12 @@ namespace FilmPixelGenerator
             LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder5, processedFolder5, shiftValue: 16);
             LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder6, processedFolder6, shiftValue: 32);
 
-            LikeItsWinterProcess(ProcessNames.Vertical, unprocessedFolder7, processedFolder7, shiftValue: 32);
-            LikeItsWinterProcess(ProcessNames.Vertical, unprocessedFolder8, processedFolder8, shiftValue: 8);
-            LikeItsWinterProcess(ProcessNames.Vertical, unprocessedFolder9, processedFolder9, shiftValue: 2);
+            LikeItsWinterProcess(ProcessNames.Vertical, unprocessedFolder7, processedFolder7, shiftValue: 32, shiftChance: .1);
+            LikeItsWinterProcess(ProcessNames.Vertical, unprocessedFolder8, processedFolder8, shiftValue: 8, shiftChance: .05);
+            LikeItsWinterProcess(ProcessNames.Vertical, unprocessedFolder9, processedFolder9, shiftValue: 2, shiftChance: .01);
         }
 
-        static void LikeItsWinterProcess(string process, string unprocessedFolder, string processedFolder, double shiftChance = 0.5, int shiftValue = 1)
+        static void LikeItsWinterProcess(string process, string unprocessedFolder, string processedFolder, double shiftChance = 0.25, int shiftValue = 1)
         {
             List<ImageReference> unprocessedImages = GetImages(unprocessedFolder);
 
@@ -72,7 +72,7 @@ namespace FilmPixelGenerator
 
             foreach (string fileName in fileList)
             {
-                Console.WriteLine("Getting " + fileName + " - " + count + " / " + fileList.Length);
+                Console.WriteLine("Getting " + fileName + " - " + folder + ": " + count + " / " + fileList.Length);
                 images.Add(new ImageReference(fileName, getBrightness));
                 count++;
             }
@@ -80,7 +80,7 @@ namespace FilmPixelGenerator
             return images;
         }
 
-        static Image<Rgba32> HorizontalLineProcess(Image<Rgba32> unprocessedImage, double shiftChance = 0.5, int shiftValue = 1)
+        static Image<Rgba32> HorizontalLineProcess(Image<Rgba32> unprocessedImage, double shiftChance, int shiftValue)
         {
             for (int x = 0; x < unprocessedImage.Width - shiftValue * 2; x+= shiftValue)
             {
@@ -101,7 +101,7 @@ namespace FilmPixelGenerator
             return unprocessedImage;
         }
 
-        static Image<Rgba32> VerticalLineProcess(Image<Rgba32> unprocessedImage, double shiftChance = 0.5, int shiftValue = 1)
+        static Image<Rgba32> VerticalLineProcess(Image<Rgba32> unprocessedImage, double shiftChance, int shiftValue)
         {
             for (int y = 0; y < unprocessedImage.Height - shiftValue * 2; y+= shiftValue)
             {
@@ -166,7 +166,7 @@ namespace FilmPixelGenerator
         {
             string location = folder + "\\" + folder + count + "." + extension;
 
-            Console.WriteLine("Saving " + location + " - " + count + " / " + total);
+            Console.WriteLine("Saving " + location + " - " + folder + ": " + count + " / " + total);
 
             Directory.CreateDirectory(folder);
             image.Save(location);
