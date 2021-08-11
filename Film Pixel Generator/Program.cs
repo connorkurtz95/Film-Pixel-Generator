@@ -10,10 +10,10 @@ namespace FilmPixelGenerator
 {
     class Program
     {
-        public static string extension = "png", unsortedFolder = "raw3", sortedFolder = "unraw3";
+        public static string extension = "png", unsortedFolder = "Clip1Unprocessed", sortedFolder = "Clip1Processed";
         static void Main()
         {
-            List<ImageReference> unsortedImages = GetImages(unsortedFolder);//test 
+            List<ImageReference> unsortedImages = GetImages(unsortedFolder);
             List<ImageReference> sortedImages = SortImagesByBrightness(unsortedImages);
 
             SaveImages(sortedImages, sortedFolder, "sorted_image");
@@ -32,12 +32,29 @@ namespace FilmPixelGenerator
 
             foreach (string fileName in fileList)
             {
-                Console.WriteLine("Processing " + fileName + " - " + count + " / " + fileList.Length);
+                Console.WriteLine("Getting " + fileName + " - " + count + " / " + fileList.Length);
                 images.Add(new ImageReference(fileName));
                 count++;
             }
 
             return images;
+        }
+
+        static void ProcessAndSaveImages(List<ImageReference> unprocessedImages)
+        {
+            foreach(ImageReference imageReference in unprocessedImages)
+            {
+                Image<Rgba32> image = imageReference.Load();
+
+                image = HorizontalLineProcess(image);
+
+                SaveImage(image, sortedFolder, sortedFolder, extension);
+            }
+        }
+
+        static Image<Rgba32> HorizontalLineProcess(Image<Rgba32> unprocessedImage)
+        {
+
         }
 
         static List<ImageReference> SortImagesByBrightness(List<ImageReference> unsortedImages)
@@ -78,6 +95,17 @@ namespace FilmPixelGenerator
             {
                 Console.WriteLine(blackCount + " black frames ignored");
             }
+        }
+
+        static void SaveImage(Image<Rgba32> image, string folder, string fileName, string extension)
+        {
+            string location = folder + "\\" + fileName + "." + extension;
+
+            Console.WriteLine("Saving " + location);
+
+            image.Save(location);
+
+            //image.Dispose();
         }
     }
 
