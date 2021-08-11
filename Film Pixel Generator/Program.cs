@@ -39,7 +39,7 @@ namespace FilmPixelGenerator
 
         static void LikeItsWinterProcess(string process, string unprocessedFolder, string processedFolder, double shiftChance = 0.25, int shiftValue = 1)
         {
-            List<ImageReference> unprocessedImages = GetImages(unprocessedFolder);
+            List<ImageReference> unprocessedImages = GetImageReferences(unprocessedFolder);
 
             int count = 0;
 
@@ -62,7 +62,7 @@ namespace FilmPixelGenerator
             }
         }
 
-        static List<ImageReference> GetImages(string folder, bool getBrightness = false)
+        static List<ImageReference> GetImageReferences(string folder, bool getBrightness = false)
         {
             string[] fileList = Directory.GetFiles(folder);
 
@@ -122,7 +122,7 @@ namespace FilmPixelGenerator
             return unprocessedImage;
         }
 
-        static List<ImageReference> SortImagesByBrightness(List<ImageReference> unsortedImages)
+        static List<ImageReference> SortImageReferencesByBrightness(List<ImageReference> unsortedImages)
         {
             Console.WriteLine("Sorting Images");
 
@@ -131,7 +131,7 @@ namespace FilmPixelGenerator
             return sortedImages;
         }
 
-        static void SaveImages (List<ImageReference> images, string folder, string fileName, bool includeBlackFrames = false)
+        static void SaveImageReferences (List<ImageReference> images, string folder, string fileName, bool includeBlackFrames = false)
         {
 
             Directory.CreateDirectory(folder);
