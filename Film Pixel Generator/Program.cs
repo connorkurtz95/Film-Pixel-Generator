@@ -10,19 +10,64 @@ namespace FilmPixelGenerator
 {
     class Program
     {
-        public static string extension = "png", unsortedFolder = "Clip1Unprocessed", sortedFolder = "Clip1Processed";
+        public static string extension = "png";
+        public static Random rand = new Random();
         static void Main()
         {
-            List<ImageReference> unsortedImages = GetImages(unsortedFolder);
-            List<ImageReference> sortedImages = SortImagesByBrightness(unsortedImages);
-
-            SaveImages(sortedImages, sortedFolder, "sorted_image");
+            LikeItsWinter();
 
             Console.WriteLine("done");
             Console.ReadLine();
         }
+        static void LikeItsWinter()
+        {
+            string unprocessedFolder1 = "Clip1Unprocessed", processedFolder1 = "Clip1Processed", unprocessedFolder2 = "Clip2Unprocessed", processedFolder2 = "Clip2Processed", unprocessedFolder3 = "Clip3Unprocessed", processedFolder3 = "Clip3Processed",
+                unprocessedFolder4 = "Clip4Unprocessed", processedFolder4 = "Clip4Processed", unprocessedFolder5 = "Clip5Unprocessed", processedFolder5 = "Clip5Processed", unprocessedFolder6 = "Clip6Unprocessed", processedFolder6 = "Clip6Processed",
+                unprocessedFolder7 = "Clip7Unprocessed", processedFolder7 = "Clip7Processed", unprocessedFolder8 = "Clip8Unprocessed", processedFolder8 = "Clip8Processed", unprocessedFolder9 = "Clip9Unprocessed", processedFolder9 = "Clip9Processed";
 
-        static List<ImageReference> GetImages(string folder)
+
+            //ProcessNames.Horizontal;
+
+
+
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder1, processedFolder1, shiftValue: 1);
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder2, processedFolder2, shiftValue: 2);
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder3, processedFolder3, shiftValue: 4);
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder4, processedFolder4, shiftValue: 8);
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder5, processedFolder5, shiftValue: 16);
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder6, processedFolder6, shiftValue: 32);
+
+            LikeItsWinterProcess(ProcessNames.Vertical, unprocessedFolder7, processedFolder7, shiftValue: 32);
+            LikeItsWinterProcess(ProcessNames.Vertical, unprocessedFolder8, processedFolder8, shiftValue: 8);
+            LikeItsWinterProcess(ProcessNames.Vertical, unprocessedFolder9, processedFolder9, shiftValue: 2);
+        }
+
+        static void LikeItsWinterProcess(string process, string unprocessedFolder, string processedFolder, double shiftChance = 0.5, int shiftValue = 1)
+        {
+            List<ImageReference> unprocessedImages = GetImages(unprocessedFolder);
+
+            int count = 0;
+
+            foreach (ImageReference imageReference in unprocessedImages)
+            {
+                count++;
+
+                Image<Rgba32> image = imageReference.Load();
+
+                if (process == ProcessNames.Horizontal)
+                {
+                    image = HorizontalLineProcess(image, shiftChance, shiftValue);
+                }
+                else if(process == ProcessNames.Vertical)
+                {
+                    image = VerticalLineProcess(image, shiftChance, shiftValue);
+                }
+
+                SaveImage(image, processedFolder, processedFolder + count, extension);
+            }
+        }
+
+        static List<ImageReference> GetImages(string folder, bool getBrightness = false)
         {
             string[] fileList = Directory.GetFiles(folder);
 
@@ -33,28 +78,53 @@ namespace FilmPixelGenerator
             foreach (string fileName in fileList)
             {
                 Console.WriteLine("Getting " + fileName + " - " + count + " / " + fileList.Length);
-                images.Add(new ImageReference(fileName));
+                images.Add(new ImageReference(fileName, getBrightness));
                 count++;
             }
 
             return images;
         }
 
-        static void ProcessAndSaveImages(List<ImageReference> unprocessedImages)
+        static Image<Rgba32> HorizontalLineProcess(Image<Rgba32> unprocessedImage, double shiftChance = 0.5, int shiftValue = 1)
         {
-            foreach(ImageReference imageReference in unprocessedImages)
+            for (int x = 0; x < unprocessedImage.Width - shiftValue * 2; x+= shiftValue)
             {
-                Image<Rgba32> image = imageReference.Load();
-
-                image = HorizontalLineProcess(image);
-
-                SaveImage(image, sortedFolder, sortedFolder, extension);
+                if(rand.NextDouble() < shiftChance)
+                {
+                    for (int x2 = x; x2 <= x + shiftValue; x2++)
+                    {
+                        for (int y = 0; y < unprocessedImage.Height; y++)
+                        {
+                            Rgba32 passoverColour = unprocessedImage[x2, y];
+                            unprocessedImage[x2, y] = unprocessedImage[x2 + shiftValue, y];
+                            unprocessedImage[x2 + shiftValue, y] = passoverColour;
+                        }
+                    }
+                }
             }
+
+            return unprocessedImage;
         }
 
-        static Image<Rgba32> HorizontalLineProcess(Image<Rgba32> unprocessedImage)
+        static Image<Rgba32> VerticalLineProcess(Image<Rgba32> unprocessedImage, double shiftChance = 0.5, int shiftValue = 1)
         {
+            for (int y = 0; y < unprocessedImage.Height - shiftValue * 2; y+= shiftValue)
+            {
+                if (rand.NextDouble() < shiftChance)
+                {
+                    for (int y2 = y; y2 <= y + shiftValue; y2++)
+                    {
+                        for (int x = 0; x < unprocessedImage.Width; x++)
+                        {
+                            Rgba32 passoverColour = unprocessedImage[x, y2];
+                            unprocessedImage[x, y2] = unprocessedImage[x, y2 + shiftValue];
+                            unprocessedImage[x, y2 + shiftValue] = passoverColour;
+                        }
+                    }
+                }
+            }
 
+            return unprocessedImage;
         }
 
         static List<ImageReference> SortImagesByBrightness(List<ImageReference> unsortedImages)
@@ -103,9 +173,10 @@ namespace FilmPixelGenerator
 
             Console.WriteLine("Saving " + location);
 
+            Directory.CreateDirectory(folder);
             image.Save(location);
 
-            //image.Dispose();
+            image.Dispose();
         }
     }
 
@@ -114,11 +185,14 @@ namespace FilmPixelGenerator
         public string imageLocation;
         public long brightness;
 
-        public ImageReference(string imageLocation)
+        public ImageReference(string imageLocation, bool getBrightness = false)
         {
             this.imageLocation = imageLocation;
 
-            FindBrightness();
+            if (getBrightness)
+            {
+                FindBrightness();
+            }
         }
 
         public void FindBrightness()
@@ -180,48 +254,9 @@ namespace FilmPixelGenerator
             return image;
         }
     }
-
-    //class ImageReference
-    //{
-    //    public string imageLocation;
-    //    public long brightness;
-
-    //    public ImageReference(string imageLocation)
-    //    {
-    //        this.imageLocation = imageLocation;
-
-    //        FindBrightness();
-    //    }
-
-    //    public void FindBrightness()
-    //    {
-    //        using (var image = new Bitmap(System.Drawing.Image.FromFile(imageLocation)))
-    //        {
-    //            brightness = 0;
-
-    //            for (int x = 0; x < image.Width; x++)
-    //            {
-    //                for (int y = 0; y < image.Height; y++)
-    //                {
-    //                    brightness += image.GetPixel(x, y).R + image.GetPixel(x, y).G + image.GetPixel(x, y).B;
-    //                }
-    //            }
-
-    //            image.Dispose();
-    //        }
-    //    }
-    //    public void Save(string folder, string fileName, string extension)
-    //    {
-    //        string location = folder + "/" + fileName + "." + extension;
-
-    //        Console.WriteLine("Saving " + location);
-
-    //        using (var image = new Bitmap(System.Drawing.Image.FromFile(imageLocation)))
-    //        {
-    //            image.Save(location);
-
-    //            image.Dispose();
-    //        }
-    //    }
-    //}
+    class ProcessNames
+    {
+        public static string Horizontal = "Horizontal";
+        public static string Vertical = "Vertical";
+    }
 }
