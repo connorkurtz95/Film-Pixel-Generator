@@ -11,6 +11,7 @@ namespace FilmPixelGenerator
     class Program
     {
         public static string extension = "png";
+        public static int projectFps = 30, secondsPerMinte = 60;
         public static Random rand = new Random();
         static void Main()
         {
@@ -23,18 +24,26 @@ namespace FilmPixelGenerator
         {
             string unprocessedFolder1 = "Clip1Unprocessed", processedFolder1 = "Clip1Processed", unprocessedFolder2 = "Clip2Unprocessed", processedFolder2 = "Clip2Processed", unprocessedFolder3 = "Clip3Unprocessed", processedFolder3 = "Clip3Processed",
                 unprocessedFolder4 = "Clip4Unprocessed", processedFolder4 = "Clip4Processed", unprocessedFolder5 = "Clip5Unprocessed", processedFolder5 = "Clip5Processed", unprocessedFolder6 = "Clip6Unprocessed", processedFolder6 = "Clip6Processed",
-                unprocessedFolder7 = "Clip7Unprocessed", processedFolder7 = "Clip7Processed", unprocessedFolder8 = "Clip8Unprocessed", processedFolder8 = "Clip8Processed", unprocessedFolder9 = "Clip9Unprocessed", processedFolder9 = "Clip9Processed";
+                unprocessedFolder7 = "Clip7Unprocessed", processedFolder7 = "Clip7Processed", unprocessedFolder8 = "Clip8Unprocessed", processedFolder8 = "Clip8Processed", unprocessedFolder9 = "Clip9Unprocessed", processedFolder9 = "Clip9Processed",
+                blackFolder1 = "Black1p", blackFolder2 = "Black2p", blackFolder3 = "Black3p", blackFolder4 = "Black4p", blackFolder5 = "Black5p", blackFolder6 = "Black6p", blackFolder7 = "Black7p";
 
-            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder1, processedFolder1, shiftValue: 1);
-            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder2, processedFolder2, shiftValue: 2);
-            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder3, processedFolder3, shiftValue: 4);
-            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder4, processedFolder4, shiftValue: 8);
-            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder5, processedFolder5, shiftValue: 16);
-            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder6, processedFolder6, shiftValue: 32);
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder1, processedFolder1, shiftValue: 1, shiftChance: .65);
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder2, processedFolder2, shiftValue: 2, shiftChance: .3);
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder3, processedFolder3, shiftValue: 3, shiftChance: .2);
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder4, processedFolder4, shiftValue: 3, shiftChance: .9);
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder5, processedFolder5, shiftValue: 5, shiftChance: .4);
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder6, processedFolder6, shiftValue: 6, shiftChance: .2);
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder7, processedFolder7, shiftValue: 4, shiftChance: .2);
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder8, processedFolder8, shiftValue: 3, shiftChance: .5);
+            LikeItsWinterProcess(ProcessNames.Horizontal, unprocessedFolder9, processedFolder9, shiftValue: 2, shiftChance: .95);
 
-            LikeItsWinterProcess(ProcessNames.Vertical, unprocessedFolder7, processedFolder7, shiftValue: 32, shiftChance: .1);
-            LikeItsWinterProcess(ProcessNames.Vertical, unprocessedFolder8, processedFolder8, shiftValue: 8, shiftChance: .05);
-            LikeItsWinterProcess(ProcessNames.Vertical, unprocessedFolder9, processedFolder9, shiftValue: 2, shiftChance: .01);
+            ColourFramesGenerator(blackFolder1, 60, Rgba32.Black, holdFrames: 2, pixelSize: 4, pixelChance: 0.1);//1.15.09.08
+            ColourFramesGenerator(blackFolder2, 35, Rgba32.Black, holdFrames: 4, pixelSize: 8, pixelChance: 0.05);//1.16.00.12
+            ColourFramesGenerator(blackFolder3, 45, Rgba32.Black, holdFrames: 20, pixelSize: 20, pixelChance: 0.1);//1.16.32.14
+            ColourFramesGenerator(blackFolder4, 30, Rgba32.Black, holdFrames: 10, pixelSize: 20, pixelChance: 0.2);//1.17.13.18
+            ColourFramesGenerator(blackFolder5, 30, Rgba32.Black, holdFrames: 5, pixelSize: 10, pixelChance: 0.2);//1.17.35.23
+            ColourFramesGenerator(blackFolder6, 35, Rgba32.Black, holdFrames: 2, pixelSize: 5, pixelChance: 0.5);//1.18.02.11
+            ColourFramesGenerator(blackFolder7, 30, Rgba32.Black, holdFrames: 1, pixelSize: 4, pixelChance: 0.8);//1.18.24.02
         }
 
         static void LikeItsWinterProcess(string process, string unprocessedFolder, string processedFolder, double shiftChance = 0.25, int shiftValue = 1)
@@ -59,6 +68,34 @@ namespace FilmPixelGenerator
                 }
 
                 SaveImage(image, processedFolder, extension, count, unprocessedImages.Count);
+            }
+        }
+        static void ColourFramesGenerator(string folder, int seconds, Rgba32 colour, int holdFrames = 1, int totalWidth = 1920, int totalHeight = 1080, int frameWidth = 1920, int frameHeight = 1080, int pixelSize = 1, double pixelChance = 0.1)
+        {
+            int saveCount = 1;
+
+            for (int frame = 0; frame <= seconds * projectFps; frame += holdFrames)
+            {
+                Image<Rgba32> image = new Image<Rgba32>(totalWidth, totalHeight);
+
+                for (int x = 0; x < frameWidth; x += pixelSize)
+                {
+                    for(int y = 0; y < frameHeight; y += pixelSize)
+                    {
+                        if (rand.NextDouble() < pixelChance)
+                        {
+                            image[x, y] = colour;
+                        }
+                    }
+                }
+
+                for(int saveFrame = 0; saveFrame <= holdFrames; saveFrame++)
+                {
+                    SaveImage(image, folder, extension, saveCount, seconds * projectFps, dispose: false);
+                    saveCount++;
+                }
+
+                image.Dispose();
             }
         }
 
@@ -162,7 +199,7 @@ namespace FilmPixelGenerator
             }
         }
 
-        static void SaveImage(Image<Rgba32> image, string folder, string extension, int count, int total)
+        static void SaveImage(Image<Rgba32> image, string folder, string extension, int count, int total, bool dispose = true)
         {
             string location = folder + "\\" + folder + count + "." + extension;
 
@@ -171,7 +208,10 @@ namespace FilmPixelGenerator
             Directory.CreateDirectory(folder);
             image.Save(location);
 
-            image.Dispose();
+            if (dispose)
+            {
+                image.Dispose();
+            }
         }
     }
 
